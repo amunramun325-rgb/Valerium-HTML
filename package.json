@@ -1,0 +1,12 @@
+{
+  "name": "valerium-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Valerium (VALERIUM) landing page - static site",
+  "scripts": {
+    "start": "serve -s . -l ${PORT:-3000}"
+  },
+  "dependencies": {
+    "serve": "^14.2.3"
+  }
+}

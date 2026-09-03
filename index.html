@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Valerium (VALERIUM): a fixed-supply, verified ERC-20 token on Base.">
+<!--
+DESIGN PLAN
+
+Subject: Valerium (VALERIUM) — a fixed-supply ERC-20 token on Base, deployed
+2026-09-03, verified source, 2,000,000 units, no mint function. Audience:
+anyone who lands here from a DEX listing, Basescan, or a shared link, trying
+to figure out in ten seconds whether this is a real, transparent contract or
+another anonymous mint. The page's one job: state the facts plainly, prove
+them with real links, and be honest about scale (tiny liquidity) rather than
+hype it.
+
+Concept: the name "Valerium" reads like an element name (valor + the -ium
+suffix of tin, titanium, helium). Treat it as a specimen sheet for a newly
+isolated element rather than a "crypto landing page" — a periodic-table-style
+cell as the hero, its verified properties laid out like assay data, sourced
+against real instruments (Basescan, Uniswap, GeckoTerminal) instead of hype
+copy. This is a real, distinctive frame for THIS name specifically — it
+would look wrong on a token called something else.
+
+Color (mineral/verdigris, not the void+acid-green crypto cliché):
+  --ground   #10140f  near-black with a green-black bias (patina, not void)
+  --surface  #171d17  card surface
+  --surface2 #1d251d  raised surface / table stripe
+  --ink      #eef1ea  warm-white, slight green cast
+  --ash      #8b9c8c  muted sage — secondary text
+  --verdigris#4fd1a0  primary accent — oxidized-copper green, the "assay" mark
+  --ember    #d98a4f  warm copper complement — used once, for the honest
+             risk/caveat callouts, never for decoration
+  --hairline #26302a  borders
+
+Type:
+  Display — "Fraunces" (variable serif, a little idiosyncratic, reads like
+             engraved specimen-label lettering) for the element name/headline.
+  Mono    — "IBM Plex Mono" for all data: the specs table, contract address,
+             the atomic-style numbers. Data should look measured, not styled.
+  Body    — "Work Sans" for running prose — a plain, unfussy grotesque so the
+             serif and mono keep their contrast.
+
+Layout: a single centered column (max 760px) built like a specimen dossier:
+a periodic-table cell as the hero (big glyph "Va", the "atomic number" reused
+as the token's sequence — this is the second token, so it's plate II — and
+"atomic mass" reused as total supply), then a proper assay/data table, then
+short honest prose, then a row of real instrument links (Basescan, Uniswap,
+GeckoTerminal, DexScreener) each with a one-line honest caveat, then a plain
+footer disclaimer. No gradient hero, no giant centered stack of buttons —
+the specimen card carries the one moment of visual boldness; everything
+after it is quiet, table-like, and legible.
+-->
+<title>Valerium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=Work+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:   #f6f5ef;
+    --surface:  #ffffff;
+    --surface2: #edeee3;
+    --ink:      #191d18;
+    --ash:      #5c6b5d;
+    --verdigris:#2f8f6c;
+    --verdigris-ink: #1f6b4f;
+    --ember:    #a85a26;
+    --hairline: #d9dccb;
+    --shadow:   0 1px 0 rgba(20,25,20,0.04);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:   #10140f;
+      --surface:  #171d17;
+      --surface2: #1d251d;
+      --ink:      #eef1ea;
+      --ash:      #8b9c8c;
+      --verdigris:#4fd1a0;
+      --verdigris-ink: #4fd1a0;
+      --ember:    #d98a4f;
+      --hairline: #26302a;
+      --shadow:   0 1px 0 rgba(0,0,0,0.3);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:   #10140f;
+    --surface:  #171d17;
+    --surface2: #1d251d;
+    --ink:      #eef1ea;
+    --ash:      #8b9c8c;
+    --verdigris:#4fd1a0;
+    --verdigris-ink: #4fd1a0;
+    --ember:    #d98a4f;
+    --hairline: #26302a;
+    --shadow:   0 1px 0 rgba(0,0,0,0.3);
+  }
+
+  *{ box-sizing:border-box; }
+  html{ text-size-adjust:100%; }
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:"Work Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{ color:inherit; }
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--verdigris);
+    outline-offset:2px;
+  }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, "SF Mono", monospace; }
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:0 24px 96px;
+  }
+
+  /* ---------- header ---------- */
+  header.site{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:28px 24px;
+    max-width:760px;
+    margin:0 auto;
+  }
+  .wordmark{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:13px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--ash);
+  }
+  .wordmark b{ color:var(--ink); font-weight:600; }
+  nav.site{
+    display:flex;
+    gap:20px;
+    font-family:"IBM Plex Mono", monospace;
+    font-size:12px;
+    letter-spacing:0.06em;
+  }
+  nav.site a{
+    text-decoration:none;
+    color:var(--ash);
+    border-bottom:1px solid transparent;
+    padding-bottom:2px;
+  }
+  nav.site a:hover{ color:var(--verdigris-ink); border-color:currentColor; }
+
+  /* ---------- specimen hero ---------- */
+  .specimen{
+    position:relative;
+    background:var(--surface);
+    border:1px solid var(--hairline);
+    border-radius:6px;
+    box-shadow:var(--shadow);
+    padding:38px 34px 30px;
+    margin-top:8px;
+    overflow:hidden;
+  }
+  .specimen::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(480px 260px at 88% -10%, color-mix(in srgb, var(--verdigris) 14%, transparent), transparent 70%);
+    pointer-events:none;
+  }
+  .specimen-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    position:relative;
+  }
+  .plate{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:11px;
+    letter-spacing:0.1em;
+    color:var(--ash);
+  }
+  .plate b{ color:var(--verdigris-ink); font-weight:600; }
+  .verified-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:"IBM Plex Mono", monospace;
+    font-size:11px;
+    letter-spacing:0.06em;
+    color:var(--verdigris-ink);
+    border:1px solid color-mix(in srgb, var(--verdigris) 45%, var(--hairline));
+    background:color-mix(in srgb, var(--verdigris) 10%, transparent);
+    padding:4px 9px;
+    border-radius:100px;
+    text-decoration:none;
+    white-space:nowrap;
+  }
+  .verified-chip::before{
+    content:"";
+    width:6px; height:6px;
+    border-radius:50%;
+    background:var(--verdigris);
+    flex:none;
+  }
+
+  .cell{
+    position:relative;
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:26px;
+    align-items:center;
+    margin-top:26px;
+  }
+  .glyph{
+    font-family:"Fraunces", ui-serif, Georgia, serif;
+    font-weight:600;
+    font-size:96px;
+    line-height:1;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+    font-variation-settings:"opsz" 144;
+  }
+  .glyph sub{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:13px;
+    font-weight:500;
+    color:var(--verdigris-ink);
+    vertical-align:sub;
+    letter-spacing:0;
+  }
+  .cell-name{
+    font-family:"Fraunces", ui-serif, Georgia, serif;
+    font-size:34px;
+    font-weight:500;
+    line-height:1.08;
+    text-wrap:balance;
+    margin:0 0 8px;
+  }
+  .cell-tagline{
+    color:var(--ash);
+    font-size:15px;
+    max-width:46ch;
+    margin:0;
+  }
+
+  .facts{
+    position:relative;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:1px;
+    background:var(--hairline);
+    border:1px solid var(--hairline);
+    border-radius:4px;
+    margin-top:28px;
+    overflow:hidden;
+  }
+  .fact{
+    background:var(--surface);
+    padding:14px 16px;
+  }
+  .fact-label{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:10px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ash);
+    margin:0 0 6px;
+  }
+  .fact-value{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:16px;
+    font-weight:500;
+    font-variant-numeric:tabular-nums;
+    margin:0;
+  }
+
+  /* ---------- sections ---------- */
+  section{ margin-top:56px; }
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    margin-bottom:18px;
+  }
+  .section-num{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:12px;
+    color:var(--verdigris-ink);
+  }
+  h2{
+    font-family:"Fraunces", ui-serif, Georgia, serif;
+    font-weight:500;
+    font-size:22px;
+    margin:0;
+  }
+  p{ max-width:62ch; }
+  p.lede{ color:var(--ash); }
+
+  /* assay table */
+  .assay{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14px;
+  }
+  .assay tr{ border-bottom:1px solid var(--hairline); }
+  .assay tr:last-child{ border-bottom:none; }
+  .assay th, .assay td{
+    text-align:left;
+    padding:12px 4px;
+    vertical-align:top;
+  }
+  .assay th{
+    font-family:"IBM Plex Mono", monospace;
+    font-weight:500;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ash);
+    width:38%;
+  }
+  .assay td{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:13.5px;
+  }
+  .assay td.wrap-addr{
+    word-break:break-all;
+  }
+  .assay a{ color:var(--verdigris-ink); text-decoration:underline; text-underline-offset:2px; }
+
+  .copy-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  button.copy{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:11px;
+    letter-spacing:0.04em;
+    color:var(--verdigris-ink);
+    background:color-mix(in srgb, var(--verdigris) 10%, transparent);
+    border:1px solid color-mix(in srgb, var(--verdigris) 40%, var(--hairline));
+    border-radius:4px;
+    padding:4px 9px;
+    cursor:pointer;
+  }
+  button.copy:hover{ background:color-mix(in srgb, var(--verdigris) 18%, transparent); }
+
+  /* instrument links */
+  .instruments{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  @media (max-width: 560px){
+    .instruments{ grid-template-columns:1fr; }
+    .facts{ grid-template-columns:1fr 1fr; }
+    .facts .fact:last-child{ grid-column:1 / -1; }
+    .cell{ grid-template-columns:1fr; }
+    .glyph{ font-size:72px; }
+  }
+  .instrument{
+    display:block;
+    background:var(--surface);
+    border:1px solid var(--hairline);
+    border-radius:6px;
+    padding:16px 18px;
+    text-decoration:none;
+    color:var(--ink);
+  }
+  .instrument:hover{ border-color:color-mix(in srgb, var(--verdigris) 55%, var(--hairline)); }
+  .instrument-name{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-family:"IBM Plex Mono", monospace;
+    font-size:13px;
+    font-weight:500;
+    margin-bottom:6px;
+  }
+  .instrument-name .arrow{ color:var(--verdigris-ink); }
+  .instrument-note{
+    font-size:12.5px;
+    color:var(--ash);
+    margin:0;
+  }
+  .instrument-note.caution{ color:var(--ember); }
+
+  hr.hairline{
+    border:none;
+    border-top:1px solid var(--hairline);
+    margin:56px 0 0;
+  }
+  footer{
+    padding-top:22px;
+    font-size:12.5px;
+    color:var(--ash);
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px 18px;
+    justify-content:space-between;
+    align-items:baseline;
+  }
+  footer .disclaimer{ max-width:52ch; }
+  footer .mono{ font-size:11px; }
+
+  @media (prefers-reduced-motion: no-preference){
+    .specimen{ animation: rise 0.5s ease-out; }
+    @keyframes rise{
+      from{ opacity:0; transform:translateY(6px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wordmark">assay no. 002 · <b>VALERIUM</b></div>
+  <nav class="site">
+    <a href="#specs">Specs</a>
+    <a href="#instruments">Trade</a>
+    <a href="#notes">Notes</a>
+  </nav>
+</header>
+
+<div class="wrap">
+
+  <div class="specimen">
+    <div class="specimen-top">
+      <div class="plate">Plate <b>II</b> · isolated 2026-09-03 · Base network</div>
+      <a class="verified-chip" href="https://basescan.org/address/0x6A7aF7C367a49f5bC96BC2cE1De820Aed70E02D5#code" target="_blank" rel="noopener">source verified</a>
+    </div>
+
+    <div class="cell">
+      <div class="glyph">Va<sub>II</sub></div>
+      <div>
+        <h1 class="cell-name">Valerium</h1>
+        <p class="cell-tagline">A fixed quantity of a plain ERC-20, forged once on Base and never remintable. Nothing else is claimed for it.</p>
+      </div>
+    </div>
+
+    <div class="facts">
+      <div class="fact">
+        <p class="fact-label">Symbol</p>
+        <p class="fact-value">VALERIUM</p>
+      </div>
+      <div class="fact">
+        <p class="fact-label">Total supply</p>
+        <p class="fact-value">2,000,000</p>
+      </div>
+      <div class="fact">
+        <p class="fact-label">Mint function</p>
+        <p class="fact-value">None</p>
+      </div>
+    </div>
+  </div>
+
+  <section id="specs">
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <h2>Assay</h2>
+    </div>
+    <p class="lede">Every field below can be checked independently on Base's block explorer — nothing here depends on taking our word for it.</p>
+    <table class="assay">
+      <tr><th>Standard</th><td>ERC-20 (OpenZeppelin Contracts v5)</td></tr>
+      <tr><th>Decimals</th><td>18</td></tr>
+      <tr><th>Total supply</th><td>2,000,000.000000000000000000 VALERIUM — minted once, at deployment, to the deployer</td></tr>
+      <tr><th>Network</th><td>Base mainnet · chain ID 8453</td></tr>
+      <tr>
+        <th>Contract</th>
+        <td class="wrap-addr">
+          <div class="copy-row">
+            <span id="addr">0x6A7aF7C367a49f5bC96BC2cE1De820Aed70E02D5</span>
+            <button class="copy" type="button" onclick="navigator.clipboard.writeText('0x6A7aF7C367a49f5bC96BC2cE1De820Aed70E02D5').then(()=>{this.textContent='copied';setTimeout(()=>this.textContent='copy',1200)})">copy</button>
+          </div>
+        </td>
+      </tr>
+      <tr><th>Source code</th><td><a href="https://basescan.org/address/0x6A7aF7C367a49f5bC96BC2cE1De820Aed70E02D5#code" target="_blank" rel="noopener">verified on Basescan →</a></td></tr>
+      <tr><th>Deployed</th><td>2026-09-03</td></tr>
+    </table>
+  </section>
+
+  <section id="instruments">
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <h2>Where it trades</h2>
+    </div>
+    <p class="lede">There is exactly one market for VALERIUM right now, and it's small. Read the notes before assuming otherwise.</p>
+    <div class="instruments">
+      <a class="instrument" href="https://app.uniswap.org/explore/tokens/base/0x6a7af7c367a49f5bc96bc2ce1de820aed70e02d5" target="_blank" rel="noopener">
+        <div class="instrument-name">Uniswap <span class="arrow">↗</span></div>
+        <p class="instrument-note">VALERIUM / ETH, full-range, 0.25% fee — the only liquidity pool that exists for this token.</p>
+      </a>
+      <a class="instrument" href="https://basescan.org/token/0x6A7aF7C367a49f5bC96BC2cE1De820Aed70E02D5" target="_blank" rel="noopener">
+        <div class="instrument-name">Basescan <span class="arrow">↗</span></div>
+        <p class="instrument-note">Holder list, transfers, and the verified source code, straight from the chain.</p>
+      </a>
+      <a class="instrument" href="https://www.geckoterminal.com/base/tokens/0x6a7af7c367a49f5bc96bc2ce1de820aed70e02d5" target="_blank" rel="noopener">
+        <div class="instrument-name">GeckoTerminal <span class="arrow">↗</span></div>
+        <p class="instrument-note">Auto-indexes the Uniswap pool. May take a little while to appear after launch.</p>
+      </a>
+      <a class="instrument" href="https://dexscreener.com/base/0x6A7aF7C367a49f5bC96BC2cE1De820Aed70E02D5" target="_blank" rel="noopener">
+        <div class="instrument-name">DexScreener <span class="arrow">↗</span></div>
+        <p class="instrument-note caution">Pools this small often show little chart data — that's expected, not a fault in the token.</p>
+      </a>
+    </div>
+  </section>
+
+  <section id="notes">
+    <div class="section-head">
+      <span class="section-num">03</span>
+      <h2>Notes</h2>
+    </div>
+    <p>Valerium is a plain, fixed-supply ERC-20 — a straightforward token contract with no admin keys that can mint more of it, no fees on transfer, no hidden logic. What you see in the assay above is the entire mechanism.</p>
+    <p>The pool backing it is currently very small, funded from the deployer's own pocket rather than raised capital. That means the price is easy to move with even a modest trade, in either direction. Treat any price you see here accordingly.</p>
+  </section>
+
+  <hr class="hairline">
+  <footer>
+    <div class="disclaimer">Independent, experimental token. Not investment advice — do your own research before acquiring it, and be aware you can lose whatever you put in.</div>
+    <div class="mono">0x6A7a…E02D5 · Base</div>
+  </footer>
+
+</div>
+</body>
+</html>
